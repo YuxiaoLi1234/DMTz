@@ -434,7 +434,7 @@ __device__ void getVerticesFromTriangleID(
     int baseID, min_x, min_y, min_z;
     int starID = triangleID;
     // if(starID == 212468) printf("type1:\n");
-    // XY 平面的三角形
+   
     
     if (triangleID < 2 * depth * (width - 1) * (height - 1)) {
         baseID = triangleID / 2;
@@ -442,7 +442,7 @@ __device__ void getVerticesFromTriangleID(
         min_y = (baseID % ((width - 1) * (height - 1))) / (width - 1);
         min_x = baseID % (width - 1);
 
-        // 三角形类型（上下三角形）
+        
         if (triangleID % 2 == 0) {
             v1 = min_x + min_y * width + min_z * width * height;
             v2 = (min_x + 1) + min_y * width + min_z * width * height;
@@ -461,7 +461,7 @@ __device__ void getVerticesFromTriangleID(
         
     }
 
-    // YZ 平面的三角形
+    
     triangleID -= 2 * depth * (width - 1) * (height - 1);
     if (triangleID < 2 * width * (height - 1) * (depth - 1)) {
         baseID = triangleID / 2;
@@ -485,7 +485,7 @@ __device__ void getVerticesFromTriangleID(
         return;
     }
 
-    // XZ 平面的三角形
+   
     triangleID -= 2 * width * (height - 1) * (depth - 1);
     if (triangleID < 2 * height * (width - 1) * (depth - 1)) {
         baseID = triangleID / 2;
@@ -509,7 +509,7 @@ __device__ void getVerticesFromTriangleID(
         return;
     }
 
-    // 对角线方向的三角形
+    
     triangleID -= 2 * height * (width - 1) * (depth - 1);
     baseID = triangleID / 6;
     min_z = baseID / ((width - 1) * (height - 1));
@@ -570,7 +570,7 @@ __device__ void getVerticesFromTriangleID(
 
 
 __device__ int getTetrahedraID(int v1, int v2, int v3, int v4, int width, int height, int depth) {
-    // 找到包含这四个顶点的立方体的位置
+    
 
     int cellX = min(min(v1%width, v2%width), min(v3%width, v4%width));
     int cellY = min(min((v1/width)%height, (v2/width)%height), min((v3/width)%height, (v4/width)%height));
@@ -679,11 +679,11 @@ __device__ void getVerticesFromTetrahedraID(
     int &v3, 
     int &v4) {
 
-    // 计算四面体所在单元格的 ID 和类型
+    
     int baseID = tetrahedraID / 6;
     int type = tetrahedraID % 6;
 
-    // 计算单元格位置
+    
     int cellZ = baseID / ((width - 1) * (height - 1));
     int cellY = (baseID % ((width - 1) * (height - 1))) / (width - 1);
     int cellX = baseID % (width - 1);
@@ -839,8 +839,7 @@ public:
           globalData(globalMemory), globalCapacity(globalCapacity) {}
 
     __device__ ~SimpleStack() {
-        // 由于shared memory是CUDA管理的，因此不需要手动释放
-        // 只释放在global memory中申请的内存
+        
         if (useGlobal && globalData) {
             free(globalData);
         }
@@ -1100,7 +1099,7 @@ __device__ int getEdgeID(int x, int y, int z, int x1, int y1, int z1, int width,
     
     
 
-    return -1;  // 非法方向
+    return -1;  
 }
 
 
@@ -1449,7 +1448,7 @@ void writeDataToFile(const std::vector<unsigned long long>& data, const std::str
         file.write(reinterpret_cast<const char*>(data.data()), data.size() * sizeof(unsigned long long));
         file.close();
     } else {
-        std::cerr << "无法打开文件 " << filename << " 进行写入。" << std::endl;
+        std::cerr << "can not open file " << filename << " to write" << std::endl;
     }
 }
 
@@ -1489,29 +1488,29 @@ std::tuple<unsigned long long, unsigned long long> convertToIEEE754(double num) 
 
 
 std::vector<std::pair<int, int>> runLengthEncodeBitmap(const std::vector<uint8_t>& bitmap) {
-    std::vector<std::pair<int, int>> rleData; // 存储 (位值, 数量) 对
+    std::vector<std::pair<int, int>> rleData; 
     if (bitmap.empty()) return rleData;
 
-    // 初始化第一个位
-    int currentBit = (bitmap[0] >> 7) & 1; // 获取第一个字节的最高位
+    
+    int currentBit = (bitmap[0] >> 7) & 1; 
     int count = 0;
 
-    // 遍历位图数据的每一位
+    
     for (const auto& byte : bitmap) {
-        for (int i = 7; i >= 0; --i) { // 从每个字节的最高位开始
-            int bit = (byte >> i) & 1; // 提取当前位
+        for (int i = 7; i >= 0; --i) { 
+            int bit = (byte >> i) & 1;
             if (bit == currentBit) {
-                count++; // 当前位与前一个相同，增加计数
+                count++; 
             } else {
-                // 遇到不同的位，保存当前的游程长度
+                
                 rleData.emplace_back(currentBit, count);
-                currentBit = bit; // 更新为新的位
-                count = 1; // 重置计数
+                currentBit = bit; 
+                count = 1; 
             }
         }
     }
 
-    // 保存最后的游程长度
+    
     rleData.emplace_back(currentBit, count);
 
     return rleData;
@@ -1524,11 +1523,11 @@ double calculateCompressionRatio(size_t originalSize, const std::vector<std::pai
         compressedSize += sizeof(int) + sizeof(int); 
     }
 
-    // 计算压缩比
+    
     return static_cast<double>(originalSize) / compressedSize;
 }
 
-// 打印 RLE 压缩数据
+
 void printRLE(const std::vector<std::pair<uint8_t, int>>& rleData) {
     for (const auto& p : rleData) {
         std::cout << "(" << static_cast<int>(p.first) << ", " << p.second << ") ";
@@ -1536,30 +1535,30 @@ void printRLE(const std::vector<std::pair<uint8_t, int>>& rleData) {
     std::cout << std::endl;
 }
 std::vector<uint8_t> encodeTo3BitBitmap(const std::vector<int>& data) {
-    std::vector<uint8_t> bitmap; // 存储结果的位图
-    uint8_t currentByte = 0; // 当前字节
-    int bitIndex = 0; // 当前位的索引
+    std::vector<uint8_t> bitmap; 
+    uint8_t currentByte = 0; 
+    int bitIndex = 0; 
 
     for (int value : data) {
         if (value < 0 || value > 6) {
             
-            std::cerr << "错误：输入值超出范围 (0-6)。"<<value << std::endl;
+            std::cerr << "error, value out of (0~6)"<<value << std::endl;
             return {};
         }
 
         // 将当前值的3位插入到当前字节
-        currentByte |= (value << (bitIndex)); // 将值左移到正确的位置
-        bitIndex += 3; // 增加3位
+        currentByte |= (value << (bitIndex));
+        bitIndex += 3;
 
         // 检查是否需要写入字节
-        if (bitIndex >= 8) { // 如果当前字节已填满（8位）
-            bitmap.push_back(currentByte); // 将填满的字节加入位图
-            bitIndex -= 8; // 减去已填满的位
-            currentByte = (value >> (3 - bitIndex)); // 如果有剩余的位，存储到下一个字节的起始位置
+        if (bitIndex >= 8) { 
+            bitmap.push_back(currentByte); 
+            bitIndex -= 8; 
+            currentByte = (value >> (3 - bitIndex));
         }
     }
 
-    // 如果最后有未完成的字节，写入它
+    
     if (bitIndex > 0) {
         bitmap.push_back(currentByte);
     }
@@ -1567,15 +1566,15 @@ std::vector<uint8_t> encodeTo3BitBitmap(const std::vector<int>& data) {
     return bitmap;
 }
 
-// 打印位图的二进制表示（每3位一组）
+
 void printBitmap(const std::vector<uint8_t>& bitmap, int totalBits) {
-    int bitCount = 0; // 当前已处理的位数
+    int bitCount = 0; 
     int cnt = 0;
     for (uint8_t byte : bitmap) {
         if(cnt>10) return;
-        for (int i = 7; i >= 0 && bitCount < totalBits; --i, ++bitCount) { // 从最高位开始打印每个字节的二进制位
+        for (int i = 7; i >= 0 && bitCount < totalBits; --i, ++bitCount) { 
             std::cout << ((byte >> i) & 1);
-            if (bitCount % 3 == 2) { // 每3位打印一个空格
+            if (bitCount % 3 == 2) { 
                 std::cout << " ";
             }
         }
@@ -1605,7 +1604,7 @@ void cost(std::string filename, std::vector<double> decp_data, std::vector<doubl
     // std::string exponentFilename = "exponents.bin";
     // std::string mantissaFilename = "mantissas.bin";
 
-    // // 将数据写入文件
+   
     // writeDataToFile(exponents, exponentFilename);
     // writeDataToFile(mantissas, mantissaFilename);
 
@@ -1701,10 +1700,10 @@ void cost(std::string filename, std::vector<double> decp_data, std::vector<doubl
 
     std::ofstream outFile3("./stat_result/result_"+filename+"_"+compressor_id+"_detailed_additional_time.txt", std::ios::app);
 
-    // 检查文件是否成功打开
+    
     if (!outFile3) {
         std::cerr << "Unable to open file for writing." << std::endl;
-        return; // 返回错误码
+        return; 
     }
 
     
@@ -1730,7 +1729,7 @@ void cost(std::string filename, std::vector<double> decp_data, std::vector<doubl
     outFile3 << std::setprecision(17)<<"compression_time: "<<compression_time<< std::endl;
     outFile3 << std::setprecision(17)<<"additional_time: "<<additional_time<< std::endl;
     outFile3 << "\n" << std::endl;
-    // 关闭文件
+    
     outFile3.close();
 
     std::cout << "Variables have been appended to output.txt" << std::endl;
@@ -1841,7 +1840,7 @@ void original_cost(std::string filename, std::vector<double> decp_data, std::vec
     outFile3 << std::setprecision(17)<<"compression_time: "<<compression_time<< std::endl;
     outFile3 << std::setprecision(17)<<"additional_time: "<<additional_time<< std::endl;
     outFile3 << "\n" << std::endl;
-    // 关闭文件
+    
     outFile3.close();
 
     std::cout << "Variables have been appended to output.txt" << std::endl;
@@ -1859,7 +1858,7 @@ __device__ void getVertexIDsFromEdgeID(
     int &id2
     ) {
 
-    // 每个方向的边的数量
+    
     int counts[7] = {
         (width - 1) * height * depth,       // {1, 0, 0} and {-1, 0, 0}
         width * (height - 1) * depth,       // {0, 1, 0} and {0, -1, 0}
@@ -1873,7 +1872,7 @@ __device__ void getVertexIDsFromEdgeID(
     int accumulated = 0;
     int directionIdx = -1;
 
-    // 找到 edgeID 所属的方向
+    
     for (int i = 0; i < 7; ++i) {
         if (edgeID < accumulated + counts[i]) {
             directionIdx = i;
@@ -1882,30 +1881,30 @@ __device__ void getVertexIDsFromEdgeID(
         accumulated += counts[i];
     }
 
-    // 如果未找到合法的方向
+    
     if (directionIdx == -1) {
         id1 = id2 = -1;
         return;
     }
 
     
-    // 获取对应的方向
+    
     int dx = directions1[directionIdx * 2][0];
     int dy = directions1[directionIdx * 2][1];
     int dz = directions1[directionIdx * 2][2];
 
-    // 边在该方向上的相对索引
+    
     int edgeInDirection = edgeID - accumulated;
     
-    // 根据方向计算基本位置
+    
     int x = 0, y = 0, z = 0;
     int x1, y1, z1;
     if (directionIdx == 0) { // X方向的边
-        // 第几层 
+        
         z = edgeInDirection / ((width - 1) * height);
-        // 第几行 
+        
         y = (edgeInDirection % ((width - 1) * height)) / (width - 1);
-        // 第几个
+        
         x = edgeInDirection % (width - 1);
 
         x1 = x + 1;
@@ -1913,7 +1912,7 @@ __device__ void getVertexIDsFromEdgeID(
         y1 = y;
 
         z1 = z;
-    } else if (directionIdx == 1) { // Y方向的边
+    } else if (directionIdx == 1) { 
         z = edgeInDirection / (width * (height - 1));
         x = (edgeInDirection % (width * (height - 1))) / (height - 1);
         y = edgeInDirection % (height - 1);
@@ -1921,7 +1920,7 @@ __device__ void getVertexIDsFromEdgeID(
         y1 = y + 1;
         x1 = x;
         z1 = z;
-    } else if (directionIdx == 2) { // Z方向的边
+    } else if (directionIdx == 2) { 
         y = edgeInDirection / (width * (depth - 1));
         x = (edgeInDirection % (width * (depth - 1))) / (depth - 1);
         z = edgeInDirection % (depth - 1);
@@ -1929,7 +1928,7 @@ __device__ void getVertexIDsFromEdgeID(
         y1 = y;
         x1 = x;
         z1 = z + 1;
-    } else if (directionIdx == 3) { // 对角线 {-1, 1, 0} 和 {1, -1, 0}
+    } else if (directionIdx == 3) { 
         int z2 = edgeInDirection / ((width - 1) * (height - 1));
         int y2 = (edgeInDirection % ((width - 1) * (height - 1))) / (width - 1);
         int x2 = edgeInDirection % (width - 1);
@@ -1940,7 +1939,7 @@ __device__ void getVertexIDsFromEdgeID(
         y1 = y2 + 1;
         x1 = x2;
         z1 = z2;
-    } else if (directionIdx == 4) { // 对角线 {0, 1, 1} 和 {0, -1, -1}
+    } else if (directionIdx == 4) { 
         int x2 = edgeInDirection / ((height - 1) * (depth - 1));
         int y2 = (edgeInDirection % ((height - 1) * (depth - 1))) / (depth - 1);
         int z2 = edgeInDirection % (depth - 1);
@@ -1953,7 +1952,7 @@ __device__ void getVertexIDsFromEdgeID(
         x1 = x2;
         z1 = z2 + 1;
         
-    } else if (directionIdx == 5) { // 对角线 {-1, 0, 1} 和 {1, 0, -1}
+    } else if (directionIdx == 5) { 
         int y2 = edgeInDirection / ((width - 1) * (depth - 1));
         int z2 = (edgeInDirection % ((width - 1) * (depth - 1))) / (width - 1);
         int x2 = edgeInDirection % (width - 1);
@@ -1965,7 +1964,7 @@ __device__ void getVertexIDsFromEdgeID(
         y1 = y2;
         x1 = x2;
         z1 = z2 + 1;
-    } else if (directionIdx == 6) { // 对角线 {1, -1, -1} 和 {-1, 1, 1}
+    } else if (directionIdx == 6) { 
         int z2 = edgeInDirection /( (width-1) * (height - 1));
         int y2 = (edgeInDirection % ((width - 1) * (height - 1))) / (width - 1);
         int x2 = edgeInDirection % (width - 1);
@@ -1979,7 +1978,7 @@ __device__ void getVertexIDsFromEdgeID(
     }
 
     // if(edgeID == 99714) printf("%d\n", directionIdx);
-    // 计算顶点 ID
+   
     id1 = x + y * width + z * (width * height);
     id2 = x1 + y1 * width + z1 * (width * height);
 
@@ -7281,10 +7280,10 @@ int main(int argc, char** argv) {
     
 
     std::ofstream outFilep("./stat_result/performance1_cuda_"+filename+"_"+std::to_string(bound1)+"_"+compressor_id+".txt", std::ios::app);
-        // 检查文件是否成功打开
+        
         if (!outFilep) {
             std::cerr << "Unable to open file for writing." << std::endl;
-            return 1; // 返回错误码
+            return 1; /
         }
         // finddirection:0, getfcp:1,  mappath2, fixcp:3
         
@@ -7316,7 +7315,7 @@ int main(int argc, char** argv) {
             outFilep << "iteration: "<<c1<<": ";
             for (size_t i = 0; i < row.size(); ++i) {
                 outFilep << row[i];
-                if (i != row.size() - 1) { // 不在行的末尾时添加逗号
+                if (i != row.size() - 1) { 
                     outFilep << ", ";
                 }
             }
